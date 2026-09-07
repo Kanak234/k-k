@@ -15,6 +15,7 @@ import pytest
 # requirements.txt these modules are absent, and this file must skip
 # rather than fail collection.
 pytest.importorskip("fastapi", reason="API requires FastAPI (requirements-platform.txt)")
+pytest.importorskip("sqlalchemy", reason="API requires SQLAlchemy (requirements-platform.txt)")
 
 from pi_platform.api import app, set_service
 from pi_platform.service import ProductService

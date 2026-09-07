@@ -142,7 +142,7 @@ class ProductEnricher:
                 try:
                     return await self.enrich(raw, use_llm=use_llm)
                 except Exception as exc:  # one bad record must not kill the batch
-                    logger.warning("enrichment failed", product=raw.name, error=str(exc))
+                    logger.warning("enrichment failed for %s: %s", raw.name, exc)
                     failed = EnrichedProduct(raw=raw)
                     failed.trace("error", message=str(exc))
                     return failed
@@ -314,7 +314,7 @@ class ProductEnricher:
         payload = _parse_json_response(raw_response)
         if payload is None:
             product.trace("llm", status="unparseable", chars=len(raw_response))
-            logger.warning("LLM returned unparseable JSON", product=product.raw.name)
+            logger.warning("LLM returned unparseable JSON for %s", product.raw.name)
             return False
 
         accepted, rejected = self._merge_llm_specs(product, payload.get("specifications", {}))
@@ -426,10 +426,10 @@ class ProductEnricher:
                 provider.complete(messages, self.model), timeout=self.llm_timeout
             )
         except asyncio.TimeoutError:
-            logger.warning("LLM call timed out", timeout=self.llm_timeout)
+            logger.warning("LLM call timed out after %s", self.llm_timeout)
             return None
         except Exception as exc:
-            logger.warning("LLM call failed", error=str(exc))
+            logger.warning("LLM call failed: %s", exc)
             return None
 
     def _merge_llm_specs(
